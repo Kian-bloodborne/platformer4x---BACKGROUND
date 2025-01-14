@@ -16,25 +16,25 @@ export class Goomba extends Character {
 
         //Access in which a Goomba can travel    
         this.minPosition = minPosition * GameEnv.innerWidth;
-        this.maxPosition = this.x + xPercentage * GameEnv.innerWidth;
+        this.maxPosition = this.x + (xPercentage * GameEnv.innerWidth * 0.7); // Restricted range to 70%
 
         this.immune = 0;
 
         //Define Speed of Enemy
         if (["easy", "normal"].includes(GameEnv.difficulty)) {
-            this.speed = this.speed * Math.floor(Math.random() * 1.5 + 2);
+            this.speed = this.speed * Math.floor(Math.random() * 1.2 + 1.3); // Slightly more restricted range
         } else if (GameEnv.difficulty === "hard") {
-            this.speed = this.speed * Math.floor(Math.random() * 3 + 3);
+            this.speed = this.speed * Math.floor(Math.random() * 1.5 + 2.3);
         } else {
-            this.speed = this.speed * 5
+            this.speed = this.speed * 3.5; // Reduced speed multiplier
         }
     }
 
     update() {
         super.update();
         
-        // Check for boundaries
-        if (this.x <= this.minPosition || (this.x + this.canvasWidth >= this.maxPosition)) {
+        // Check for boundaries with slight buffer
+        if (this.x <= this.minPosition + 5 || (this.x + this.canvasWidth >= this.maxPosition - 5)) {
             this.speed = -this.speed;
         };
 
@@ -47,7 +47,6 @@ export class Goomba extends Character {
         };
 
         //Random Event 3: Kill a Random Goomba
-        //Whichever Goomba recieves this message first will die, then end the event so the other Goombas don't die
         if (GameControl.randomEventId === 3 && GameControl.randomEventState === 1) {
             this.destroy();
             GameControl.endRandomEvent();
@@ -56,13 +55,13 @@ export class Goomba extends Character {
         // Every so often change direction
         switch(GameEnv.difficulty) {
             case "normal":
-                if (Math.random() < 0.005) this.speed = -this.speed;
+                if (Math.random() < 0.002) this.speed = -this.speed; // Lowered probability
                 break;
             case "hard":
-                if (Math.random() < 0.01) this.speed = -this.speed;
+                if (Math.random() < 0.005) this.speed = -this.speed; // Lowered probability
                 break;
             case "impossible":
-                if (Math.random() < 0.02) this.speed = -this.speed;
+                if (Math.random() < 0.01) this.speed = -this.speed; // Lowered probability
                 break;
         }
 
@@ -114,8 +113,6 @@ export class Goomba extends Character {
                     this.destroy();
                 }).bind(this), 1500);
 
-    
-                // Set a timeout to make GameEnv.invincible false after 2000 milliseconds (2 seconds)
                 setTimeout(function () {
                 this.destroy();
                 GameEnv.invincible = false;
@@ -134,8 +131,9 @@ export class Goomba extends Character {
             }
         }
     }
-     // Define the explosion action
-     explode() {
+
+    // Define the explosion action
+    explode() {
         const shards = 10; // number of shards
         for (let i = 0; i < shards; i++) {
             const shard = document.createElement('div');
